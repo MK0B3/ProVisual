@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProVisual – Protein Feature Visualizer</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090f;--surface:#0d1219;--surface2:#111827;--surface3:#1a2236;--border:#1e2d45;--border2:#253347;--text:#e2e8f0;--text2:#94a3b8;--muted:#4b6180;--accent:#3b82f6;--accent2:#06b6d4;--accent-glow:rgba(59,130,246,0.15);--success:#10b981;--warn:#f59e0b;--danger:#ef4444;--radius:10px;--radius-lg:16px;--transition:0.2s ease;}
+:root.light{--bg:#f0f4f8;--surface:#ffffff;--surface2:#f8fafc;--surface3:#eef2f7;--border:#dde3ed;--border2:#c8d3e0;--text:#0f172a;--text2:#475569;--muted:#94a3b8;--accent:#2563eb;--accent2:#0891b2;--accent-glow:rgba(37,99,235,0.1);}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;transition:background var(--transition),color var(--transition);}
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;opacity:0.15;pointer-events:none;z-index:0;}
+:root.light .grid-bg{opacity:0.28;}
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:32px 24px 80px;}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;gap:16px;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:14px;}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 24px var(--accent-glow);}
+.logo-icon svg{width:24px;height:24px;}
+.logo h1{font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:800;background:linear-gradient(90deg,var(--text),var(--text2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.5px;}
+.logo p{font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.mode-tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px;gap:3px;}
+.mode-tab{padding:6px 16px;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;background:transparent;color:var(--muted);transition:all var(--transition);}
+.mode-tab.active{background:var(--accent);color:#fff;}
+.mode-tab:not(.active):hover{color:var(--text);background:var(--surface3);}
+.icon-btn{width:36px;height:36px;background:var(--surface);border:1px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:all var(--transition);}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:18px;}
+.sec-label{font-size:0.67rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.search-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px 26px;margin-bottom:20px;}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.pane-label{font-size:0.67rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent2);margin-bottom:8px;}
+.field-label{font-size:0.67rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.search-row{display:flex;gap:10px;margin-bottom:10px;}
+.iw{position:relative;flex:1;}
+.iw input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 13px 10px 40px;font-family:'JetBrains Mono',monospace;font-size:0.88rem;color:var(--text);outline:none;transition:border-color var(--transition);}
+.iw input:focus{border-color:var(--accent);}
+.iw input::placeholder{color:var(--muted);}
+.iw-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.btn{padding:10px 20px;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.86rem;cursor:pointer;transition:all var(--transition);white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#1d4ed8);color:#fff;}
+.btn-primary:hover{opacity:0.88;transform:translateY(-1px);}
+.btn-primary:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
+.btn-ghost{background:var(--surface3);border:1px solid var(--border);color:var(--text2);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm{padding:6px 12px;font-size:0.76rem;}
+.pills-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px;}
+.pill-label{font-size:0.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.pill{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px 11px;font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--accent2);cursor:pointer;transition:all var(--transition);}
+.pill:hover{border-color:var(--accent2);background:rgba(6,182,212,0.07);}
+.history-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.hist-pill{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--muted);cursor:pointer;transition:all var(--transition);}
+.hist-pill:hover{color:var(--text);border-color:var(--border2);}
+.status-bar{display:none;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;margin-bottom:18px;font-size:0.84rem;color:var(--text2);}
+.status-bar.on{display:flex;}
+.spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.error-box{display:none;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.25);border-radius:var(--radius);padding:12px 18px;font-size:0.84rem;color:#f87171;margin-bottom:18px;}
+.error-box.on{display:block;}
+#results{display:none;}
+#results.on{display:block;animation:fadeUp 0.3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.summary-area{display:grid;gap:16px;margin-bottom:18px;}
+.summary-area.two{grid-template-columns:1fr 1fr;}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px 24px;display:flex;gap:18px;align-items:flex-start;}
+.sum-body{flex:1;min-width:0;}
+.prot-name{font-size:1.1rem;font-weight:600;margin-bottom:2px;line-height:1.3;}
+.prot-gene{font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--accent2);margin-bottom:8px;}
+.prot-desc{font-size:0.82rem;color:var(--text2);line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.sum-meta{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+.uniprot-link{display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;color:var(--accent2);text-decoration:none;border:1px solid rgba(6,182,212,0.3);border-radius:5px;padding:3px 8px;transition:all var(--transition);}
+.uniprot-link:hover{background:rgba(6,182,212,0.08);}
+.cov-badge{font-size:0.7rem;color:var(--success);border:1px solid rgba(16,185,129,0.3);border-radius:5px;padding:3px 8px;font-family:'JetBrains Mono',monospace;}
+.sum-stats{display:flex;flex-direction:column;gap:7px;align-items:flex-end;flex-shrink:0;}
+.stat-chip{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;text-align:right;min-width:82px;}
+.stat-v{font-family:'JetBrains Mono',monospace;font-size:0.88rem;font-weight:600;color:var(--accent);}
+.stat-k{font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:1px;}
+.len-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 24px;margin-bottom:18px;}
+.len-track{height:14px;background:var(--bg);border-radius:7px;overflow:hidden;margin:10px 0 6px;display:flex;}
+.len-seg{height:100%;}
+.len-labels{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:0.7rem;}
+.controls-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 22px;margin-bottom:18px;}
+.controls-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.kw-wrap{position:relative;flex:0 0 195px;}
+.kw-wrap input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:8px 11px 8px 33px;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--text);outline:none;transition:border-color var(--transition);}
+.kw-wrap input:focus{border-color:var(--accent);}
+.kw-wrap input::placeholder{color:var(--muted);}
+.kw-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.view-tabs{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:2px;gap:2px;}
+.view-tab{padding:5px 11px;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.74rem;font-weight:500;cursor:pointer;background:transparent;color:var(--muted);transition:all var(--transition);}
+.view-tab.active{background:var(--surface3);color:var(--text);}
+.filters-wrap{display:flex;gap:5px;flex-wrap:wrap;flex:1;}
+.fchip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;border:1px solid transparent;cursor:pointer;font-size:0.69rem;font-weight:500;transition:all var(--transition);user-select:none;}
+.fchip input{display:none;}
+.fdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.fbadge{font-family:'JetBrains Mono',monospace;font-size:0.58rem;background:rgba(0,0,0,0.25);border-radius:10px;padding:0 4px;min-width:14px;text-align:center;}
+.ctrl-actions{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto;}
+.density-canvas{width:100%;height:16px;border-radius:4px;display:block;margin-bottom:6px;}
+.strips-area{display:grid;gap:16px;margin-bottom:18px;}
+.strips-area.two{grid-template-columns:1fr 1fr;}
+.strip-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;}
+.strip-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap;}
+.strip-title{font-size:0.67rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+.strip-actions{display:flex;gap:6px;align-items:center;}
+.strip-wrap{overflow-x:auto;padding-bottom:4px;cursor:crosshair;}
+.strip-wrap svg{display:block;min-width:380px;}
+.tables-area{display:grid;gap:16px;margin-bottom:18px;}
+.tables-area.two{grid-template-columns:1fr 1fr;}
+.feat-table{width:100%;border-collapse:collapse;}
+.feat-table th{font-size:0.65rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+.feat-table th:hover{color:var(--text);}
+.feat-table td{padding:5px 8px;font-size:0.79rem;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle;}
+.feat-table tr:last-child td{border-bottom:none;}
+.feat-table tbody tr:hover td{background:var(--surface3);}
+.t-swatch{width:20px;height:7px;border-radius:2px;display:inline-block;}
+.t-count{font-family:'JetBrains Mono',monospace;font-size:0.79rem;color:var(--text);}
+.t-bar-wrap{width:80px;height:5px;background:var(--bg);border-radius:3px;overflow:hidden;}
+.t-bar{height:100%;border-radius:3px;}
+.aa-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:18px;}
+.aa-toggle-row{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.aa-content{display:none;margin-top:16px;}
+.aa-content.on{display:block;}
+.aa-panels{display:grid;gap:14px;}
+.aa-panels.two{grid-template-columns:1fr 1fr;}
+.aa-chart-label{font-size:0.67rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);margin-bottom:10px;}
+.aa-bars{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;align-items:end;height:80px;}
+.aa-bar-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;cursor:default;height:80px;}
+.aa-bar{width:100%;border-radius:2px 2px 0 0;min-height:2px;flex-shrink:0;}
+.aa-lbl{font-family:'JetBrains Mono',monospace;font-size:0.52rem;color:var(--muted);}
+.aa-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
+.aa-leg-item{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text2);}
+.aa-leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.seq-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:18px;}
+.seq-toggle-row{display:flex;align-items:center;justify-content:space-between;}
+.seq-panel-wrap{display:none;margin-top:16px;}
+.seq-panel-wrap.on{display:block;}
+.seq-controls{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;}
+.seq-mode-tabs{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:2px;gap:2px;}
+.seq-mode-tab{padding:4px 10px;border:none;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:500;cursor:pointer;background:transparent;color:var(--muted);transition:all var(--transition);}
+.seq-mode-tab.active{background:var(--surface3);color:var(--text);}
+.seq-panels{display:grid;gap:14px;}
+.seq-panels.two{grid-template-columns:1fr 1fr;}
+.seq-panels.two>*{min-width:0;overflow:hidden;}
+.seq-pan-label{font-size:0.67rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2);margin-bottom:8px;}
+.seq-viewer{font-family:'JetBrains Mono',monospace;font-size:0.68rem;line-height:1;overflow:hidden;width:100%;}
+.seq-row{display:flex;gap:3px;margin-bottom:3px;align-items:center;flex-wrap:wrap;}
+.seq-pos{color:var(--muted);min-width:36px;text-align:right;font-size:0.6rem;flex-shrink:0;}
+.seq-group{display:flex;flex-wrap:wrap;}
+.seq-aa{width:10px;height:15px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;cursor:default;transition:transform 0.1s;border-radius:2px;}
+.seq-aa:hover{transform:scaleY(1.4);z-index:2;position:relative;}
+.legend-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;}
+.legend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(182px,1fr));gap:7px;margin-top:12px;}
+.leg-item{display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--text2);}
+.leg-swatch{width:22px;height:8px;border-radius:2px;flex-shrink:0;}
+.tooltip{position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 13px;font-size:0.78rem;pointer-events:none;opacity:0;transition:opacity 0.12s;z-index:9999;max-width:240px;box-shadow:0 12px 40px rgba(0,0,0,0.5);}
+.tooltip.on{opacity:1;}
+.tt-type{font-size:0.63rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:3px;}
+.tt-name{font-weight:500;color:var(--text);margin-bottom:4px;line-height:1.4;white-space:pre-line;}
+.tt-pos{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--muted);}
+.tt-lock{font-size:0.62rem;color:var(--muted);margin-top:4px;font-style:italic;}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="tooltip" id="tooltip">
+  <div class="tt-type" id="tt-type"></div>
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-pos" id="tt-pos"></div>
+  <div class="tt-lock" id="tt-lock"></div>
+</div>
+<div class="wrap">
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="10" width="20" height="4" rx="2" fill="white" fill-opacity="0.9"/><rect x="5" y="5" width="4" height="14" rx="2" fill="white" fill-opacity="0.55"/><rect x="12" y="7" width="4" height="10" rx="2" fill="white" fill-opacity="0.55"/><rect x="19" y="9" width="3" height="6" rx="1.5" fill="white" fill-opacity="0.35"/></svg>
+    </div>
+    <div><h1>ProVisual</h1><p>Protein Feature Visualizer</p></div>
+  </div>
+  <div class="header-right">
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-single" onclick="setMode('single')">Single</button>
+      <button class="mode-tab" id="tab-compare" onclick="setMode('compare')">Compare</button>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()" title="Toggle light/dark">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="search-section">
+  <div id="single-search">
+    <div class="field-label">UniProt Accession ID</div>
+    <div class="search-row">
+      <div class="iw">
+        <svg class="iw-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="q0" placeholder="e.g. P04637" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')search(0)"/>
+      </div>
+      <button class="btn btn-primary" onclick="search(0)">Visualize</button>
+    </div>
+    <div class="pills-row">
+      <span class="pill-label">Try:</span>
+      <span class="pill" onclick="quick(0,'P04637')">P04637 · TP53</span>
+      <span class="pill" onclick="quick(0,'P00533')">P00533 · EGFR</span>
+      <span class="pill" onclick="quick(0,'P38398')">P38398 · BRCA1</span>
+      <span class="pill" onclick="quick(0,'P68871')">P68871 · HBB</span>
+      <span class="pill" onclick="quick(0,'P01308')">P01308 · Insulin</span>
+      <span class="pill" onclick="quick(0,'P00519')">P00519 · ABL1</span>
+    </div>
+    <div class="history-row" id="hist-row" style="display:none;"><span class="pill-label">Recent:</span></div>
+  </div>
+  <div id="compare-search" style="display:none;">
+    <div class="compare-grid">
+      <div>
+        <div class="pane-label">Protein A</div>
+        <div class="search-row">
+          <div class="iw"><svg class="iw-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="q0c" placeholder="e.g. P04637" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')search(0)"/></div>
+          <button class="btn btn-primary btn-sm" onclick="search(0)">Load A</button>
+        </div>
+        <div class="pills-row"><span class="pill" onclick="quick(0,'P04637')">TP53</span><span class="pill" onclick="quick(0,'P00533')">EGFR</span><span class="pill" onclick="quick(0,'P38398')">BRCA1</span><span class="pill" onclick="quick(0,'P00519')">ABL1</span></div>
+      </div>
+      <div>
+        <div class="pane-label">Protein B</div>
+        <div class="search-row">
+          <div class="iw"><svg class="iw-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="q1c" placeholder="e.g. P00533" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')search(1)"/></div>
+          <button class="btn btn-primary btn-sm" onclick="search(1)">Load B</button>
+        </div>
+        <div class="pills-row"><span class="pill" onclick="quick(1,'P68871')">HBB</span><span class="pill" onclick="quick(1,'P01308')">Insulin</span><span class="pill" onclick="quick(1,'P00533')">EGFR</span><span class="pill" onclick="quick(1,'P04637')">TP53</span></div>
+      </div>
+    </div>
+    <div class="history-row" id="hist-row-c" style="display:none;"><span class="pill-label">Recent:</span></div>
+  </div>
+</div>
+
+<div class="status-bar" id="status-bar"><div class="spinner"></div><span id="status-txt">Fetching from UniProt...</span></div>
+<div class="error-box" id="error-box"></div>
+
+<div id="results">
+  <div class="summary-area" id="summary-area"></div>
+  <div id="len-section" style="display:none;">
+    <div class="len-card">
+      <div class="sec-label" style="margin-bottom:0;">Sequence Length Comparison</div>
+      <div class="len-track" id="len-track"></div>
+      <div class="len-labels" id="len-labels"></div>
+    </div>
+  </div>
+
+  <div class="controls-bar">
+    <div class="controls-top">
+      <div class="kw-wrap">
+        <svg class="kw-ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="kw-input" placeholder="Search features..." oninput="onKeyword(this.value)"/>
+      </div>
+      <div class="view-tabs">
+        <button class="view-tab active" id="vt-all" onclick="setViewMode('all')">All Features</button>
+        <button class="view-tab" id="vt-go" onclick="setViewMode('go')">GO Groups</button>
+      </div>
+      <div class="filters-wrap" id="filters-wrap"></div>
+      <div class="ctrl-actions">
+        <button class="btn btn-ghost btn-sm" id="zoom-reset-btn" style="display:none;" onclick="resetAllZoom()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Reset Zoom
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="copyFASTA()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>FASTA
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="downloadJSON()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>JSON
+        </button>
+        <button class="btn btn-ghost btn-sm" id="exp-btn0" onclick="exportPNG(0)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PNG
+        </button>
+        <button class="btn btn-ghost btn-sm" id="exp-btn1" style="display:none;" onclick="exportPNG(1)">PNG B</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="strips-area" id="strips-area">
+    <div class="strip-panel" id="strip-panel-0">
+      <div class="strip-header">
+        <div class="strip-title" id="strip-label-0">Feature Strip</div>
+        <div class="strip-actions">
+          <span id="zoom-ind-0" style="display:none;font-size:0.7rem;color:var(--accent2);font-family:'JetBrains Mono',monospace;"></span>
+          <button class="btn btn-ghost btn-sm" id="zoom-reset-0" style="display:none;" onclick="resetZoom(0)">Reset</button>
+        </div>
+      </div>
+      <canvas class="density-canvas" id="density-0"></canvas>
+      <div class="strip-wrap" id="strip-wrap-0"><svg id="svg-0"></svg></div>
+    </div>
+    <div class="strip-panel" id="strip-panel-1" style="display:none;">
+      <div class="strip-header">
+        <div class="strip-title" id="strip-label-1">Feature Strip B</div>
+        <div class="strip-actions">
+          <span id="zoom-ind-1" style="display:none;font-size:0.7rem;color:var(--accent2);font-family:'JetBrains Mono',monospace;"></span>
+          <button class="btn btn-ghost btn-sm" id="zoom-reset-1" style="display:none;" onclick="resetZoom(1)">Reset</button>
+        </div>
+      </div>
+      <canvas class="density-canvas" id="density-1"></canvas>
+      <div class="strip-wrap" id="strip-wrap-1"><svg id="svg-1"></svg></div>
+    </div>
+  </div>
+
+  <div class="tables-area" id="tables-area">
+    <div class="card" id="table-card-0"><div class="sec-label">Feature Summary</div><div id="feat-tbl-0"></div></div>
+    <div class="card" id="table-card-1" style="display:none;"><div class="sec-label">Feature Summary B</div><div id="feat-tbl-1"></div></div>
+  </div>
+
+  <div class="aa-section">
+    <div class="aa-toggle-row" onclick="toggleAA()">
+      <div>
+        <div class="sec-label" style="margin:0;">Amino Acid Composition</div>
+        <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">Bars colored by physicochemical property (Kyte-Doolittle hydrophobicity scale)</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="aa-btn" style="pointer-events:none;flex-shrink:0;">Show</button>
+    </div>
+    <div class="aa-content" id="aa-content">
+      <div class="aa-panels" id="aa-panels"></div>
+      <div class="aa-legend">
+        <div class="aa-leg-item"><span class="aa-leg-dot" style="background:#f97316;"></span>Nonpolar / Hydrophobic (A,V,I,L,M,F,W)</div>
+        <div class="aa-leg-item"><span class="aa-leg-dot" style="background:#10b981;"></span>Polar / Uncharged (G,S,T,C,Y,N,Q)</div>
+        <div class="aa-leg-item"><span class="aa-leg-dot" style="background:#3b82f6;"></span>Positively Charged (R,K,H)</div>
+        <div class="aa-leg-item"><span class="aa-leg-dot" style="background:#ef4444;"></span>Negatively Charged (D,E)</div>
+        <div class="aa-leg-item"><span class="aa-leg-dot" style="background:#8b5cf6;"></span>Special (G,P)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="seq-section">
+    <div class="seq-toggle-row">
+      <div>
+        <div class="sec-label" style="margin:0;">Sequence Viewer</div>
+        <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">Hover any residue for details</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="seq-toggle-btn" onclick="toggleSeq()">Show Sequence</button>
+    </div>
+    <div class="seq-panel-wrap" id="seq-panel-wrap">
+      <div class="seq-controls">
+        <div class="seq-mode-tabs">
+          <button class="seq-mode-tab active" id="smt-feat" onclick="setSeqMode('feature')">Feature Coverage</button>
+          <button class="seq-mode-tab" id="smt-phys" onclick="setSeqMode('physicochemical')">Physicochemical</button>
+        </div>
+        <span style="font-size:0.72rem;color:var(--muted);" id="seq-mode-hint">Colored by feature annotations</span>
+      </div>
+      <div class="seq-panels" id="seq-panels"></div>
+    </div>
+  </div>
+
+  <div class="legend-section">
+    <div class="sec-label">Color Legend</div>
+    <div class="legend-grid" id="legend-grid"></div>
+  </div>
+</div>
+</div>
+
+<script>
+const COLORS={"Domain":"#3b82f6","Region":"#8b5cf6","Repeat":"#a78bfa","Motif":"#c084fc","Compositional bias":"#7c3aed","Active site":"#10b981","Binding site":"#34d399","Site":"#6ee7b7","Modified residue":"#f59e0b","Glycosylation":"#fbbf24","Lipidation":"#fcd34d","Cross-link":"#f97316","Disulfide bond":"#ef4444","Signal":"#06b6d4","Signal peptide":"#06b6d4","Propeptide":"#22d3ee","Transit":"#67e8f9","Transit peptide":"#67e8f9","Chain":"#1e40af","Peptide":"#1d4ed8","Transmembrane":"#ec4899","Intramembrane":"#f472b6","Topological domain":"#fb923c","Coiled coil":"#84cc16","Turn":"#a3e635","Beta strand":"#bef264","Helix":"#86efac","Natural variant":"#94a3b8","Mutagenesis":"#64748b"};
+const GO_GROUPS={"Functional Sites":{color:"#10b981",types:["Active site","Binding site","Site","Modified residue","Glycosylation","Lipidation","Cross-link","Disulfide bond"]},"Structural":{color:"#3b82f6",types:["Domain","Repeat","Motif","Region","Coiled coil","Turn","Beta strand","Helix","Compositional bias"]},"Membrane & Topology":{color:"#ec4899",types:["Transmembrane","Intramembrane","Topological domain","Signal","Signal peptide","Transit","Transit peptide"]},"Processing & Variants":{color:"#f59e0b",types:["Chain","Peptide","Propeptide","Natural variant","Mutagenesis"]}};
+const AA_PROPS={A:{prop:'hydrophobic',hydro:1.8},R:{prop:'positive',hydro:-4.5},N:{prop:'polar',hydro:-3.5},D:{prop:'negative',hydro:-3.5},C:{prop:'polar',hydro:2.5},Q:{prop:'polar',hydro:-3.5},E:{prop:'negative',hydro:-3.5},G:{prop:'special',hydro:-0.4},H:{prop:'positive',hydro:-3.2},I:{prop:'hydrophobic',hydro:4.5},L:{prop:'hydrophobic',hydro:3.8},K:{prop:'positive',hydro:-3.9},M:{prop:'hydrophobic',hydro:1.9},F:{prop:'hydrophobic',hydro:2.8},P:{prop:'special',hydro:-1.6},S:{prop:'polar',hydro:-0.8},T:{prop:'polar',hydro:-0.7},W:{prop:'hydrophobic',hydro:-0.9},Y:{prop:'polar',hydro:-1.3},V:{prop:'hydrophobic',hydro:4.2}};
+const AA_COLORS={hydrophobic:'#f97316',polar:'#10b981',positive:'#3b82f6',negative:'#ef4444',special:'#8b5cf6'};
+const TYPE_PRIORITY=["Active site","Binding site","Site","Modified residue","Glycosylation","Lipidation","Cross-link","Disulfide bond","Domain","Repeat","Motif","Region","Compositional bias","Signal peptide","Transit peptide","Propeptide","Peptide","Transmembrane","Intramembrane","Topological domain","Coiled coil","Turn","Beta strand","Helix","Natural variant","Mutagenesis","Chain"];
+const DEF="  #475569";
+const SVG_W=880,PAD=16,LW=148,BX=PAD+LW+6,BW=SVG_W-BX-PAD;
+const ROW_H=30,ROW_GAP=4,AXIS_H=40;
+let darkMode=true,mode='single';
+let proteins=[null,null];
+let sharedFilters=new Set();
+let keyword='',viewMode='all',seqMode='feature';
+let zoom=[null,null],locked=[null,null];
+let drag={active:false,slot:0,ss:0,cs:0};
+let seqVisible=false,aaVisible=false;
+let tableSortCol=['count','count'],tableSortDir=[-1,-1];
+let history=[];
+function col(t){return COLORS[t]||'#475569';}
+function toggleTheme(){darkMode=!darkMode;document.documentElement.classList.toggle('light',!darkMode);[0,1].forEach(s=>{if(proteins[s]){drawStrip(s);drawDensity(s);}});}
+function setMode(m){
+  mode=m;
+  ['tab-single','tab-compare'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById('tab-'+m).classList.add('active');
+  document.getElementById('single-search').style.display=m==='single'?'':'none';
+  document.getElementById('compare-search').style.display=m==='compare'?'':'none';
+  const two=m==='compare';
+  ['summary-area','strips-area','tables-area'].forEach(id=>document.getElementById(id).className=id+(two?' two':''));
+  ['strip-panel-1','table-card-1','exp-btn1'].forEach(id=>document.getElementById(id).style.display=two?'':'none');
+  if(!two){zoom[1]=null;locked[1]=null;}
+  rebuildUI();
+}
+function getInput(s){return document.getElementById(mode==='single'?'q0':s===0?'q0c':'q1c');}
+function quick(s,id){getInput(s).value=id;search(s);}
+function addHistory(id,name){history=history.filter(h=>h.id!==id);history.unshift({id,name});if(history.length>6)history.pop();renderHistory();}
+function renderHistory(){
+  ['hist-row','hist-row-c'].forEach(rowId=>{
+    const row=document.getElementById(rowId);if(!row)return;
+    if(history.length===0){row.style.display='none';return;}
+    row.style.display='flex';
+    while(row.children.length>1)row.removeChild(row.lastChild);
+    history.forEach(h=>{
+      const p=document.createElement('span');p.className='hist-pill';
+      const shortName=h.name&&h.name!=='Unknown Protein'?' · '+h.name.split(' ')[0]:'';
+      p.textContent=h.id+shortName;p.title=h.name;
+      p.onclick=()=>{getInput(0).value=h.id;search(0);};row.appendChild(p);
+    });
+  });
+}
+async function search(slot){
+  const id=getInput(slot).value.trim().toUpperCase();if(!id)return;
+  document.getElementById('error-box').classList.remove('on');
+  document.getElementById('status-bar').classList.add('on');
+  document.getElementById('status-txt').textContent='Fetching '+id+' from UniProt...';
+  try{
+    const res=await fetch('https://rest.uniprot.org/uniprotkb/'+id+'.json');
+    if(!res.ok)throw new Error('Protein "'+id+'" not found. Please verify the UniProt accession ID.');
+    const data=await res.json();
+    proteins[slot]=parseProtein(id,data);zoom[slot]=null;locked[slot]=null;
+    addHistory(id,proteins[slot].name);
+    rebuildUI();document.getElementById('results').classList.add('on');
+  }catch(err){
+    const e=document.getElementById('error-box');e.textContent=err.message||'Network error.';e.classList.add('on');
+  }finally{document.getElementById('status-bar').classList.remove('on');}
+}
+function parseProtein(id,data){
+  const name=data.proteinDescription?.recommendedName?.fullName?.value||data.proteinDescription?.submittedName?.[0]?.fullName?.value||'Unknown Protein';
+  const gene=data.genes?.[0]?.geneName?.value||'';
+  const organism=data.organism?.scientificName||'—';
+  const seqLen=data.sequence?.length||0;
+  const sequence=data.sequence?.value||'';
+  const funC=data.comments?.find(c=>c.commentType==='FUNCTION');
+  const desc=funC?.texts?.[0]?.value||'No functional description available.';
+  const features=(data.features||[]).map(f=>({type:f.type,desc:f.description||f.type,start:f.location?.start?.value??0,end:f.location?.end?.value??0})).filter(f=>f.end>=f.start);
+  const ap=new Set();features.forEach(f=>{for(let i=f.start;i<=f.end;i++)ap.add(i);});
+  const coverage=seqLen>0?Math.round((ap.size/seqLen)*100):0;
+  return{id,name,gene,organism,seqLen,sequence,desc,features,coverage};
+}
+function rebuildUI(){
+  buildSummaryCards();buildLenBar();rebuildFilters();buildLegend();
+  [0,1].forEach(s=>{if(proteins[s]){drawStrip(s);drawDensity(s);buildFeatureTable(s);}});
+  if(aaVisible)buildAACharts();if(seqVisible)buildSeqPanels();
+}
+function buildSummaryCards(){
+  const area=document.getElementById('summary-area');area.innerHTML='';
+  const slots=mode==='single'?[0]:[0,1];
+  slots.forEach(s=>{
+    const p=proteins[s];
+    if(!p){const d=document.createElement('div');d.className='sum-card';d.style.cssText='color:var(--muted);justify-content:center;align-items:center;font-size:0.85rem;';d.textContent=s===0?'Search for Protein A above':'Search for Protein B above';area.appendChild(d);return;}
+    const card=document.createElement('div');card.className='sum-card';
+    card.innerHTML=`<div class="sum-body"><div class="prot-name">${p.name}</div><div class="prot-gene">${p.gene?'Gene: '+p.gene:p.id}</div><div class="prot-desc">${p.desc}</div><div class="sum-meta"><a class="uniprot-link" href="https://www.uniprot.org/uniprotkb/${p.id}" target="_blank"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>UniProt</a><span class="cov-badge">${p.coverage}% annotated</span></div></div><div class="sum-stats"><div class="stat-chip"><div class="stat-v">${p.seqLen.toLocaleString()}</div><div class="stat-k">Amino acids</div></div><div class="stat-chip"><div class="stat-v">${p.organism.split(' ').slice(0,2).join(' ')}</div><div class="stat-k">Organism</div></div><div class="stat-chip"><div class="stat-v">${p.features.length}</div><div class="stat-k">Features</div></div></div>`;
+    area.appendChild(card);
+  });
+}
+function buildLenBar(){
+  const sec=document.getElementById('len-section');
+  if(mode!=='compare'||!proteins[0]||!proteins[1]){sec.style.display='none';return;}
+  sec.style.display='';
+  const a=proteins[0],b=proteins[1];const total=a.seqLen+b.seqLen;
+  const aw=Math.round((a.seqLen/total)*100),bw=100-aw;
+  document.getElementById('len-track').innerHTML=`<div class="len-seg" style="width:${aw}%;background:var(--accent);border-radius:6px 0 0 6px;"></div><div class="len-seg" style="width:${bw}%;background:var(--accent2);border-radius:0 6px 6px 0;"></div>`;
+  document.getElementById('len-labels').innerHTML=`<span style="color:var(--accent);">${a.gene||a.id}: ${a.seqLen.toLocaleString()} aa</span><span style="color:var(--accent2);">${b.gene||b.id}: ${b.seqLen.toLocaleString()} aa</span>`;
+}
+function rebuildFilters(){
+  const allTypes=new Set();[0,1].forEach(s=>{if(proteins[s])proteins[s].features.forEach(f=>allTypes.add(f.type));});
+  allTypes.forEach(t=>{if(!sharedFilters.has(t))sharedFilters.add(t);});
+  [...sharedFilters].forEach(t=>{if(!allTypes.has(t))sharedFilters.delete(t);});
+  const counts={};[0,1].forEach(s=>{if(proteins[s])proteins[s].features.forEach(f=>{counts[f.type]=(counts[f.type]||0)+1;});});
+  const wrap=document.getElementById('filters-wrap');wrap.innerHTML='';
+  [...allTypes].sort().forEach(type=>{
+    const c=col(type);const lbl=document.createElement('label');lbl.className='fchip';
+    lbl.style.cssText=`background:${c}18;border-color:${c}44;color:${c};`;
+    lbl.innerHTML=`<input type="checkbox" ${sharedFilters.has(type)?'checked':''} onchange="toggleFilter('${type}',this.checked)"><span class="fdot" style="background:${c}"></span>${type}<span class="fbadge">${counts[type]||0}</span>`;
+    wrap.appendChild(lbl);
+  });
+}
+function toggleFilter(type,checked){if(checked)sharedFilters.add(type);else sharedFilters.delete(type);[0,1].forEach(s=>{if(proteins[s])drawStrip(s);});}
+function onKeyword(val){keyword=val.toLowerCase().trim();[0,1].forEach(s=>{if(proteins[s])drawStrip(s);});}
+function setViewMode(m){viewMode=m;document.getElementById('vt-all').classList.toggle('active',m==='all');document.getElementById('vt-go').classList.toggle('active',m==='go');[0,1].forEach(s=>{if(proteins[s])drawStrip(s);});}
+function getVisible(slot){
+  const p=proteins[slot];if(!p)return[];
+  let feats=p.features.filter(f=>sharedFilters.has(f.type));
+  if(zoom[slot]){const{zs,ze}=zoom[slot];feats=feats.filter(f=>f.end>=zs&&f.start<=ze);}
+  return feats;
+}
+function isHighlighted(f){if(!keyword)return true;return f.type.toLowerCase().includes(keyword)||f.desc.toLowerCase().includes(keyword);}
+function drawDensity(slot){
+  const canvas=document.getElementById('density-'+slot);if(!canvas)return;
+  const p=proteins[slot];if(!p)return;
+  const W=canvas.offsetWidth||800;const H=16;
+  canvas.width=W*2;canvas.height=H*2;const ctx=canvas.getContext('2d');ctx.scale(2,2);
+  const bins=Math.min(W,200);const counts=new Array(bins).fill(0);
+  p.features.forEach(f=>{const bs=Math.floor((f.start/p.seqLen)*bins);const be=Math.min(bins-1,Math.ceil((f.end/p.seqLen)*bins));for(let i=bs;i<=be;i++)counts[i]++;});
+  const maxC=Math.max(1,...counts);
+  ctx.fillStyle=darkMode?'#07090f':'#f0f4f8';ctx.fillRect(0,0,W,H);
+  counts.forEach((c,i)=>{
+    const x=(i/bins)*W;const w=W/bins;const h=(c/maxC)*(H-2);
+    ctx.fillStyle=`rgba(59,130,246,${0.25+0.75*(c/maxC)})`;ctx.fillRect(x,H-h-1,w-0.5,h);
+  });
+}
+function drawStrip(slot){
+  const svg=document.getElementById('svg-'+slot);if(!svg)return;
+  const ns='http://www.w3.org/2000/svg';svg.innerHTML='';
+  const p=proteins[slot];
+  if(!p){svg.setAttribute('viewBox','0 0 880 60');svg.setAttribute('height','60');return;}
+  const zr=zoom[slot];const rS=zr?zr.zs:1,rE=zr?zr.ze:p.seqLen,rLen=Math.max(1,rE-rS);
+  const visible=getVisible(slot);
+  let rowDefs=[];
+  if(viewMode==='go'){
+    Object.entries(GO_GROUPS).forEach(([grpName,grp])=>{
+      const gf=visible.filter(f=>grp.types.includes(f.type));if(gf.length===0)return;
+      rowDefs.push({isHeader:true,label:grpName,color:grp.color});
+      [...new Set(gf.map(f=>f.type))].forEach(type=>rowDefs.push({type,feats:gf.filter(f=>f.type===type)}));
+    });
+    const ung=visible.filter(f=>!Object.values(GO_GROUPS).some(g=>g.types.includes(f.type)));
+    if(ung.length>0){rowDefs.push({isHeader:true,label:'Other',color:'#475569'});[...new Set(ung.map(f=>f.type))].forEach(type=>rowDefs.push({type,feats:ung.filter(f=>f.type===type)}));}
+  }else{
+    [...new Set(visible.map(f=>f.type))].sort().forEach(type=>rowDefs.push({type,feats:visible.filter(f=>f.type===type)}));
+  }
+  if(!rowDefs.some(r=>!r.isHeader)){
+    svg.setAttribute('viewBox','0 0 880 60');svg.setAttribute('height','60');
+    const t=document.createElementNS(ns,'text');t.setAttribute('x','440');t.setAttribute('y','35');t.setAttribute('text-anchor','middle');t.setAttribute('fill','#4b6180');t.setAttribute('font-size','13');t.setAttribute('font-family','DM Sans,sans-serif');t.textContent='No features match current filters.';svg.appendChild(t);return;
+  }
+  const totalH=AXIS_H+rowDefs.length*(ROW_H+ROW_GAP)+10;
+  svg.setAttribute('viewBox',`0 0 ${SVG_W} ${totalH}`);svg.setAttribute('width','100%');svg.setAttribute('height',totalH);
+  function el(tag,attrs,parent){const e=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));if(parent)parent.appendChild(e);return e;}
+  const axG=document.createElementNS(ns,'g');svg.appendChild(axG);
+  el('line',{x1:BX,y1:22,x2:BX+BW,y2:22,stroke:'var(--border)','stroke-width':1},axG);
+  for(let i=0;i<=6;i++){
+    const x=BX+(BW/6)*i;const pos=Math.round(rS+(rLen/6)*i);
+    el('line',{x1:x,y1:22,x2:x,y2:27,stroke:'var(--border)','stroke-width':1},axG);
+    const t=document.createElementNS(ns,'text');t.setAttribute('x',x);t.setAttribute('y',38);t.setAttribute('text-anchor','middle');t.setAttribute('fill','var(--muted)');t.setAttribute('font-size','9');t.setAttribute('font-family','JetBrains Mono,monospace');t.textContent=pos;axG.appendChild(t);
+  }
+  let ri=0;
+  rowDefs.forEach(row=>{
+    const y=AXIS_H+ri*(ROW_H+ROW_GAP);
+    if(row.isHeader){
+      el('rect',{x:0,y,width:SVG_W,height:ROW_H,fill:row.color+'1a',rx:3},svg);
+      const t=document.createElementNS(ns,'text');t.setAttribute('x',PAD);t.setAttribute('y',y+ROW_H/2+4);t.setAttribute('fill',row.color);t.setAttribute('font-size','9.5');t.setAttribute('font-weight','700');t.setAttribute('font-family','DM Sans,sans-serif');t.setAttribute('letter-spacing','1.5');t.textContent=row.label.toUpperCase();svg.appendChild(t);ri++;return;
+    }
+    const{type,feats}=row;const c=col(type);
+    el('rect',{x:0,y,width:SVG_W,height:ROW_H,fill:ri%2===0?'var(--surface)':'var(--surface2)',rx:2},svg);
+    el('line',{x1:BX,y1:y+ROW_H/2,x2:BX+BW,y2:y+ROW_H/2,stroke:'var(--border)','stroke-width':1.2},svg);
+    const lbl=document.createElementNS(ns,'text');lbl.setAttribute('x',PAD+LW);lbl.setAttribute('y',y+ROW_H/2+4);lbl.setAttribute('text-anchor','end');lbl.setAttribute('fill',c);lbl.setAttribute('font-size','10.5');lbl.setAttribute('font-family','DM Sans,sans-serif');lbl.setAttribute('font-weight','500');lbl.textContent=type;svg.appendChild(lbl);
+    feats.forEach(feat=>{
+      const visS=Math.max(feat.start,rS),visE=Math.min(feat.end,rE);
+      const fx=BX+((visS-rS)/rLen)*BW;const fw=Math.max(3,((visE-visS)/rLen)*BW);
+      const fh=ROW_H*0.5;const fy=y+(ROW_H-fh)/2;
+      const hl=isHighlighted(feat);const isLk=locked[slot]===feat;
+      const rect=el('rect',{x:fx,y:fy,width:fw,height:fh,fill:c,rx:2,opacity:hl?(isLk?1:0.85):0.12,stroke:isLk?'#fff':'none','stroke-width':isLk?1.5:0,style:'cursor:pointer;transition:opacity 0.12s'},svg);
+      rect.addEventListener('mouseenter',e=>showTT(e,feat,c,slot));
+      rect.addEventListener('mousemove',moveTT);
+      rect.addEventListener('mouseleave',()=>{if(locked[slot]!==feat)hideTT();});
+      rect.addEventListener('click',()=>{locked[slot]=locked[slot]===feat?null:feat;if(locked[slot])showTT(null,feat,c,slot);else hideTT();drawStrip(slot);});
+    });
+    ri++;
+  });
+  setupZoom(slot,svg,rS,rE);updateZoomUI(slot,rS,rE,p.seqLen);
+}
+function setupZoom(slot,svg,rS,rE){
+  const ns='http://www.w3.org/2000/svg';const H=parseInt(svg.getAttribute('height'))||300;
+  const ov=document.createElementNS(ns,'rect');ov.setAttribute('x',BX);ov.setAttribute('y',0);ov.setAttribute('width',BW);ov.setAttribute('height',H);ov.setAttribute('fill','transparent');ov.setAttribute('style','cursor:crosshair');svg.appendChild(ov);
+  const sel=document.createElementNS(ns,'rect');sel.setAttribute('y',0);sel.setAttribute('height',H);sel.setAttribute('fill','rgba(59,130,246,0.1)');sel.setAttribute('stroke','rgba(59,130,246,0.4)');sel.setAttribute('stroke-width','1');sel.setAttribute('rx','2');sel.style.display='none';svg.appendChild(sel);
+  function ratio(e){const r=svg.getBoundingClientRect();return Math.max(0,Math.min(1,(e.clientX-r.left-(BX*(r.width/SVG_W)))/(BW*(r.width/SVG_W))));}
+  ov.addEventListener('mousedown',e=>{e.preventDefault();const r=ratio(e);drag={active:true,slot,ss:r,cs:r};});
+  document.addEventListener('mousemove',e=>{
+    if(!drag.active||drag.slot!==slot)return;drag.cs=ratio(e);
+    const lo=Math.min(drag.ss,drag.cs),hi=Math.max(drag.ss,drag.cs);
+    sel.setAttribute('x',BX+lo*BW);sel.setAttribute('width',(hi-lo)*BW);sel.style.display='';
+  });
+  document.addEventListener('mouseup',e=>{
+    if(!drag.active||drag.slot!==slot)return;sel.style.display='none';
+    const lo=Math.min(drag.ss,drag.cs),hi=Math.max(drag.ss,drag.cs);
+    if(hi-lo>0.01){zoom[slot]={zs:Math.round(rS+lo*(rE-rS)),ze:Math.round(rS+hi*(rE-rS))};locked[slot]=null;drawStrip(slot);}
+    drag.active=false;
+  });
+}
+function updateZoomUI(slot,rs,re,total){
+  const ind=document.getElementById('zoom-ind-'+slot);const btn=document.getElementById('zoom-reset-'+slot);const gb=document.getElementById('zoom-reset-btn');
+  if(zoom[slot]){ind.style.display='';ind.textContent=rs+'–'+re+' aa';btn.style.display='';}else{ind.style.display='none';btn.style.display='none';}
+  if(gb)gb.style.display=(zoom[0]||zoom[1])?'':'none';
+}
+function resetZoom(slot){zoom[slot]=null;locked[slot]=null;drawStrip(slot);}
+function resetAllZoom(){zoom=[null,null];locked=[null,null];[0,1].forEach(s=>{if(proteins[s])drawStrip(s);});}
+function buildFeatureTable(slot){
+  const p=proteins[slot];const c=document.getElementById('feat-tbl-'+slot);if(!p){c.innerHTML='';return;}
+  const counts={};p.features.forEach(f=>{counts[f.type]=(counts[f.type]||0)+1;});
+  const maxC=Math.max(...Object.values(counts),1);
+  let rows=Object.entries(counts);
+  rows.sort((a,b)=>tableSortDir[slot]*(tableSortCol[slot]==='type'?a[0].localeCompare(b[0]):b[1]-a[1]));
+  const tbl=document.createElement('table');tbl.className='feat-table';
+  tbl.innerHTML=`<thead><tr><th onclick="sortTable(${slot},'type')">Feature Type ${tableSortCol[slot]==='type'?(tableSortDir[slot]>0?'↑':'↓'):''}</th><th onclick="sortTable(${slot},'count')" style="width:55px;">Count ${tableSortCol[slot]==='count'?(tableSortDir[slot]>0?'↓':'↑'):''}</th><th style="width:90px;">Proportion</th><th style="width:28px;"></th></tr></thead>`;
+  const tbody=document.createElement('tbody');
+  rows.forEach(([type,count])=>{
+    const pct=Math.round((count/maxC)*100);const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="color:var(--text);">${type}</td><td class="t-count">${count}</td><td><div class="t-bar-wrap"><div class="t-bar" style="width:${pct}%;background:${col(type)};"></div></div></td><td><span class="t-swatch" style="background:${col(type)};"></span></td>`;
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);c.innerHTML='';c.appendChild(tbl);
+}
+function sortTable(slot,cn){if(tableSortCol[slot]===cn)tableSortDir[slot]*=-1;else{tableSortCol[slot]=cn;tableSortDir[slot]=cn==='count'?-1:1;}buildFeatureTable(slot);}
+function buildLegend(){
+  const grid=document.getElementById('legend-grid');grid.innerHTML='';
+  const allTypes=new Set();[0,1].forEach(s=>{if(proteins[s])proteins[s].features.forEach(f=>allTypes.add(f.type));});
+  [...allTypes].sort().forEach(type=>{const d=document.createElement('div');d.className='leg-item';d.innerHTML=`<span class="leg-swatch" style="background:${col(type)};"></span><span>${type}</span>`;grid.appendChild(d);});
+}
+function toggleAA(){aaVisible=!aaVisible;document.getElementById('aa-content').classList.toggle('on',aaVisible);document.getElementById('aa-btn').textContent=aaVisible?'Hide':'Show';if(aaVisible)buildAACharts();}
+function buildAACharts(){
+  const container=document.getElementById('aa-panels');container.innerHTML='';
+  container.className='aa-panels'+(mode==='compare'?' two':'');
+  const slots=mode==='single'?[0]:[0,1];
+  slots.forEach(s=>{
+    const p=proteins[s];if(!p)return;
+    const counts={};p.sequence.split('').forEach(aa=>{counts[aa]=(counts[aa]||0)+1;});
+    const aas=['A','R','N','D','C','Q','E','G','H','I','L','K','M','F','P','S','T','W','Y','V'];
+    const maxC=Math.max(...aas.map(a=>counts[a]||0),1);
+    const BAR_MAX=62;
+    const panel=document.createElement('div');
+    if(mode==='compare'){const lbl=document.createElement('div');lbl.className='aa-chart-label';lbl.textContent='Protein '+(s===0?'A':'B')+': '+p.name.split(' ').slice(0,2).join(' ');panel.appendChild(lbl);}
+    const bars=document.createElement('div');bars.className='aa-bars';
+    aas.forEach(aa=>{
+      const info=AA_PROPS[aa];const c=AA_COLORS[info?.prop||'special'];
+      const barH=Math.max(2,Math.round(((counts[aa]||0)/maxC)*BAR_MAX));
+      const freq=p.sequence.length>0?((counts[aa]||0)/p.sequence.length*100).toFixed(1):'0';
+      const col_div=document.createElement('div');col_div.className='aa-bar-col';
+      col_div.title=`${aa}: ${counts[aa]||0} residues (${freq}%)\nProperty: ${info?.prop||'unknown'}\nKyte-Doolittle: ${info?.hydro??'—'}`;
+      col_div.innerHTML=`<div class="aa-bar" style="height:${barH}px;background:${c};width:100%;"></div><div class="aa-lbl">${aa}</div>`;
+      bars.appendChild(col_div);
+    });
+    panel.appendChild(bars);container.appendChild(panel);
+  });
+}
+function toggleSeq(){seqVisible=!seqVisible;document.getElementById('seq-panel-wrap').classList.toggle('on',seqVisible);document.getElementById('seq-toggle-btn').textContent=seqVisible?'Hide Sequence':'Show Sequence';if(seqVisible)buildSeqPanels();}
+function setSeqMode(m){seqMode=m;document.getElementById('smt-feat').classList.toggle('active',m==='feature');document.getElementById('smt-phys').classList.toggle('active',m==='physicochemical');document.getElementById('seq-mode-hint').textContent=m==='feature'?'Colored by feature annotations':'Colored by Kyte-Doolittle hydrophobicity (blue=hydrophilic, orange=hydrophobic)';if(seqVisible)buildSeqPanels();}
+function buildColorMap(features,seqLen){
+  const map=new Array(seqLen+2).fill(null);
+  TYPE_PRIORITY.forEach(type=>{features.filter(f=>f.type===type).forEach(f=>{const s=Math.max(1,f.start),e=Math.min(seqLen,f.end);for(let i=s;i<=e;i++){if(!map[i])map[i]=col(type);}});});
+  return map;
+}
+function hydroColor(h){const t=Math.max(0,Math.min(1,(h+4.5)/9));const r=Math.round(t*239+(1-t)*59);const g=Math.round(t*68+(1-t)*130);const b=Math.round(t*68+(1-t)*246);return`rgba(${r},${g},${b},0.65)`;}
+function buildSeqPanels(){
+  const container=document.getElementById('seq-panels');container.innerHTML='';
+  container.className='seq-panels'+(mode==='compare'?' two':'');
+  const slots=mode==='single'?[0]:[0,1];
+  slots.forEach(s=>{
+    const p=proteins[s];if(!p)return;
+    const colorMap=seqMode==='feature'?buildColorMap(p.features,p.seqLen):null;
+    const panel=document.createElement('div');
+    if(mode==='compare'){const lbl=document.createElement('div');lbl.className='seq-pan-label';lbl.textContent='Protein '+(s===0?'A':'B')+': '+p.name;panel.appendChild(lbl);}
+    const viewer=document.createElement('div');viewer.className='seq-viewer';
+    const seq=p.sequence;
+    for(let i=0;i<seq.length;i+=60){
+      const row=document.createElement('div');row.className='seq-row';
+      const posLbl=document.createElement('span');posLbl.className='seq-pos';posLbl.textContent=i+1;row.appendChild(posLbl);
+      for(let j=0;j<60&&(i+j)<seq.length;j+=10){
+        const grp=document.createElement('span');grp.className='seq-group';
+        for(let k=0;k<10&&(i+j+k)<seq.length;k++){
+          const pos=i+j+k+1;const aa=seq[i+j+k];
+          let bg;
+          if(seqMode==='feature'){bg=colorMap[pos];}else{const info=AA_PROPS[aa];bg=info?hydroColor(info.hydro):null;}
+          const span=document.createElement('span');span.className='seq-aa';
+          let bgStyle='transparent';
+          if(seqMode==='feature'&&bg)bgStyle=bg+'66';
+          else if(seqMode==='physicochemical'&&bg)bgStyle=bg;
+          span.style.background=bgStyle;span.style.color=bg?'var(--text)':'var(--muted)';
+          span.textContent=aa;
+          span.addEventListener('mouseenter',e=>showSeqTT(e,pos,p,colorMap,aa));
+          span.addEventListener('mouseleave',hideTT);
+          grp.appendChild(span);
+        }
+        row.appendChild(grp);
+      }
+      viewer.appendChild(row);
+    }
+    panel.appendChild(viewer);container.appendChild(panel);
+  });
+}
+function showSeqTT(e,pos,p,colorMap,aa){
+  const covering=p.features.filter(f=>f.start<=pos&&f.end>=pos);const info=AA_PROPS[aa];
+  document.getElementById('tt-type').style.color='var(--accent2)';
+  document.getElementById('tt-type').textContent=`Position ${pos} · ${aa}`;
+  let nm=info?`${info.prop} | Hydrophobicity: ${info.hydro}`:'';
+  if(covering.length>0)nm+='\n'+covering.slice(0,3).map(f=>f.type+(f.desc&&f.desc!==f.type?' – '+f.desc.slice(0,28):'')).join('\n');
+  document.getElementById('tt-name').textContent=nm;
+  document.getElementById('tt-pos').textContent=covering.length>1?covering.length+' features overlap here':'';
+  document.getElementById('tt-lock').textContent='';
+  document.getElementById('tooltip').classList.add('on');moveTT(e);
+}
+const tt=document.getElementById('tooltip');
+function showTT(e,feat,c,slot){
+  document.getElementById('tt-type').style.color=c;document.getElementById('tt-type').textContent=feat.type;
+  document.getElementById('tt-name').textContent=feat.desc;
+  document.getElementById('tt-pos').textContent=feat.start===feat.end?'Position: '+feat.start:'Positions: '+feat.start+' – '+feat.end+' ('+(feat.end-feat.start)+' aa)';
+  document.getElementById('tt-lock').textContent=locked[slot[0]]===feat?'🔒 Locked — click to unlock':'Click to lock';
+  tt.classList.add('on');if(e)moveTT(e);
+}
+function moveTT(e){tt.style.left=Math.min(e.clientX+16,window.innerWidth-260)+'px';tt.style.top=Math.max(8,e.clientY-10)+'px';}
+function hideTT(){if(!document.getElementById('tt-lock').textContent.includes('Locked'))tt.classList.remove('on');}
+document.addEventListener('mousemove',e=>{if(tt.classList.contains('on')){tt.style.left=Math.min(e.clientX+16,window.innerWidth-260)+'px';tt.style.top=Math.max(8,e.clientY-10)+'px';}});
+function copyFASTA(){
+  const p=proteins[0];if(!p){alert('No protein loaded.');return;}
+  const fasta=`>${p.id}|${p.name}|${p.organism}\n${p.sequence.match(/.{1,60}/g).join('\n')}`;
+  navigator.clipboard.writeText(fasta).then(()=>{const btn=event.target.closest('.btn');const orig=btn.innerHTML;btn.innerHTML='✓ Copied!';setTimeout(()=>{btn.innerHTML=orig;},1600);});
+}
+function downloadJSON(){
+  const slots=[0,1].filter(s=>proteins[s]);if(!slots.length){alert('No protein loaded.');return;}
+  const out=slots.map(s=>({id:proteins[s].id,name:proteins[s].name,gene:proteins[s].gene,organism:proteins[s].organism,length:proteins[s].seqLen,coverage_percent:proteins[s].coverage,features:proteins[s].features}));
+  const blob=new Blob([JSON.stringify(out.length===1?out[0]:out,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='provisual_'+slots.map(s=>proteins[s].id).join('_')+'.json';a.click();
+}
+function exportPNG(slot){
+  const p=proteins[slot];if(!p){alert('No protein loaded.');return;}
+  const zr=zoom[slot];const rS=zr?zr.zs:1,rE=zr?zr.ze:p.seqLen,rLen=Math.max(1,rE-rS);
+  const visible=getVisible(slot);const types=[...new Set(visible.map(f=>f.type))].sort();
+  if(!types.length){alert('No features to export.');return;}
+  const SC=2,CW=900,LWC=155,BXC=20+LWC+6,BWC=CW-BXC-18;
+  const RH=28,RG=4,AH=38,HDR=50;const totalH=HDR+AH+types.length*(RH+RG)+20;
+  const canvas=document.createElement('canvas');canvas.width=CW*SC;canvas.height=totalH*SC;
+  const ctx=canvas.getContext('2d');ctx.scale(SC,SC);const iD=darkMode;
+  ctx.fillStyle=iD?'#07090f':'#f0f4f8';ctx.fillRect(0,0,CW,totalH);
+  ctx.fillStyle=iD?'#0d1219':'#fff';ctx.fillRect(0,0,CW,HDR);
+  ctx.fillStyle=iD?'#e2e8f0':'#0f172a';ctx.font='bold 14px sans-serif';ctx.fillText(p.name+' ('+p.id+')',16,20);
+  ctx.fillStyle=iD?'#4b6180':'#94a3b8';ctx.font='9px monospace';ctx.fillText('ProVisual · '+p.organism+' · '+(zr?'Zoom: '+rS+'–'+rE+' aa':'Full: '+p.seqLen+' aa')+' · '+p.coverage+'% annotated',16,36);
+  ctx.strokeStyle=iD?'#1e2d45':'#dde3ed';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(BXC,HDR+20);ctx.lineTo(BXC+BWC,HDR+20);ctx.stroke();
+  for(let i=0;i<=6;i++){
+    const x=BXC+(BWC/6)*i;const pos=Math.round(rS+(rLen/6)*i);
+    ctx.beginPath();ctx.moveTo(x,HDR+20);ctx.lineTo(x,HDR+25);ctx.stroke();
+    ctx.fillStyle=iD?'#4b6180':'#94a3b8';ctx.font='8px monospace';ctx.textAlign='center';ctx.fillText(pos,x,HDR+36);
+  }
+  ctx.textAlign='left';
+  types.forEach((type,ri)=>{
+    const y=HDR+AH+ri*(RH+RG);
+    ctx.fillStyle=ri%2===0?(iD?'#0d1219':'#fff'):(iD?'#111827':'#f8fafc');ctx.fillRect(0,y,CW,RH);
+    ctx.fillStyle=col(type);ctx.font='500 9.5px sans-serif';ctx.textAlign='right';ctx.fillText(type,20+LWC,y+RH/2+3);ctx.textAlign='left';
+    visible.filter(f=>f.type===type).forEach(feat=>{
+      const visS=Math.max(feat.start,rS),visE=Math.min(feat.end,rE);
+      const fx=BXC+((visS-rS)/rLen)*BWC,fw=Math.max(3,((visE-visS)/rLen)*BWC);
+      ctx.globalAlpha=isHighlighted(feat)?0.87:0.12;ctx.fillStyle=col(type);
+      ctx.beginPath();ctx.roundRect(fx,y+RH*0.25,fw,RH*0.5,2);ctx.fill();ctx.globalAlpha=1;
+    });
+  });
+  const a=document.createElement('a');a.download='provisual_'+p.id+'.png';a.href=canvas.toDataURL('image/png');a.click();
+}
+window.addEventListener('resize',()=>{[0,1].forEach(s=>{if(proteins[s])drawDensity(s);});});
+</script>
+</body>
+</html>
