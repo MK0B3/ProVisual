@@ -111,6 +111,7 @@ h1.prot-name{font-size:2.8rem;font-weight:800;line-height:1.06;letter-spacing:-0
 .stat-k{font-size:0.68rem;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
 .stat-v{font-size:1.9rem;font-weight:800;color:var(--ink);line-height:1;letter-spacing:-0.03em;}
 .stat-u{font-size:0.68rem;font-weight:600;color:var(--ink3);margin-left:3px;}
+.stat-src{font-size:0.68rem;color:var(--ink4);font-weight:500;margin-top:6px;line-height:1.4;}
 
 .section{padding:40px 0;border-top:1.5px solid var(--line);}
 .sec-hd{margin-bottom:22px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;}
@@ -118,6 +119,17 @@ h1.prot-name{font-size:2.8rem;font-weight:800;line-height:1.06;letter-spacing:-0
 h2.sec-t{font-size:2rem;font-weight:800;line-height:1.1;letter-spacing:-0.035em;color:var(--ink);}
 h2.sec-t span{color:var(--green);}
 .sec-sub{font-size:0.92rem;color:var(--ink2);margin-top:8px;max-width:540px;line-height:1.6;font-weight:400;}
+.src-tags{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;margin-top:4px;}
+.src-tag{display:inline-flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:700;padding:5px 11px;border-radius:7px;text-decoration:none;transition:all 0.15s;white-space:nowrap;border:1.5px solid transparent;}
+.src-tag.uniprot{background:#e8f0ff;color:#1a4a9e;border-color:#b8ccf5;}
+.src-tag.uniprot:hover{background:#1a4a9e;color:white;}
+.src-tag.string{background:#e8f5e9;color:#1a6e2e;border-color:#a8d8b0;}
+.src-tag.string:hover{background:#1a6e2e;color:white;}
+.src-tag.computed{background:#f5f0ff;color:#5a2d9e;border-color:#c8aaf0;}
+.src-tag.groq{background:#fff3e8;color:#8f4a10;border-color:#f0c898;}
+.src-tag.kegg{background:#fff8e0;color:#7a5a00;border-color:#e8d478;}
+.src-tag.ncbi{background:#e8f8ff;color:#005a8e;border-color:#90ccee;}
+.src-tag svg{width:10px;height:10px;flex-shrink:0;}
 
 .card{background:var(--card);border:1.5px solid var(--line);border-radius:12px;box-shadow:var(--shadow-s);}
 .card-p{padding:22px 26px;}
@@ -228,7 +240,30 @@ h2.sec-t span{color:var(--green);}
 .res-arr{margin-top:11px;color:var(--ink3);transition:all 0.2s;font-size:1.1rem;}
 .res-a:hover .res-arr{transform:translateX(4px);color:var(--rust);}
 
-.tooltip{position:fixed;background:var(--ink);color:#f5f0e8;border-radius:8px;padding:9px 13px;font-size:0.83rem;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9999;max-width:270px;box-shadow:var(--shadow-l);line-height:1.5;font-weight:500;}
+.var-impact-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px;}
+.var-impact-card{border-radius:10px;padding:14px 16px;border:2px solid transparent;}
+.var-impact-card.high{background:#fce8e3;border-color:#f2b8a8;}
+.var-impact-card.mod{background:#fef3e2;border-color:#f5d49a;}
+.var-impact-card.low{background:#edf4e8;border-color:#b8d9a8;}
+.var-impact-card.none{background:#f4f4f4;border-color:#ddd;}
+.var-impact-label{font-size:0.7rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;}
+.var-impact-card.high .var-impact-label{color:#8f2d0c;}
+.var-impact-card.mod .var-impact-label{color:#8f6000;}
+.var-impact-card.low .var-impact-label{color:#2c5f3f;}
+.var-impact-card.none .var-impact-label{color:#555;}
+.var-impact-n{font-size:2rem;font-weight:800;letter-spacing:-0.03em;line-height:1;}
+.var-impact-card.high .var-impact-n{color:#b53a10;}
+.var-impact-card.mod .var-impact-n{color:#b87800;}
+.var-impact-card.low .var-impact-n{color:#1e5c38;}
+.var-impact-card.none .var-impact-n{color:#666;}
+.var-impact-desc{font-size:0.75rem;color:var(--ink3);margin-top:4px;font-weight:500;line-height:1.4;}
+.var-track-wrap{overflow-x:auto;}
+.var-track-svg{display:block;min-width:600px;}
+.var-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);}
+.var-leg{display:flex;align-items:center;gap:7px;font-size:0.8rem;font-weight:600;color:var(--ink2);}
+.var-leg-dot{width:12px;height:12px;border-radius:50%;}
+.var-click-hint{font-size:0.78rem;color:var(--ink3);font-weight:500;margin-top:10px;}
+color:#f5f0e8;border-radius:8px;padding:9px 13px;font-size:0.83rem;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:99999;max-width:270px;box-shadow:var(--shadow-l);line-height:1.5;font-weight:500;}
 .tooltip.on{opacity:1;}
 .tt-type{font-size:0.7rem;opacity:0.55;margin-bottom:2px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;}
 .tt-name{font-weight:700;margin-bottom:2px;color:white;}
@@ -528,6 +563,132 @@ Predicted TM segments: ${S.tmPred.length} | Annotated TM: ${p.feats.filter(f=>f.
   return ans||'Could not get a response. Check your API key or try again.';
 }
 
+const HIGH_FEAT=['Active site','Binding site','Site'];
+const MOD_FEAT=['Domain','Transmembrane','Intramembrane','Disulfide bond','Cross-link','Lipidation','Glycosylation','Modified residue'];
+const LOW_FEAT=['Region','Motif','Coiled coil','Helix','Beta strand','Turn','Repeat'];
+
+function classifyVariant(v,feats){
+  const others=feats.filter(f=>f.type!=='Natural variant'&&f.type!=='Mutagenesis');
+  const overlapping=others.filter(f=>v.s>=f.s&&v.s<=f.e);
+  if(overlapping.some(f=>HIGH_FEAT.includes(f.type)))return{tier:'high',color:'#b53a10',label:'High impact',overlapping};
+  if(overlapping.some(f=>MOD_FEAT.includes(f.type)))return{tier:'mod',color:'#c47c00',label:'Moderate impact',overlapping};
+  if(overlapping.some(f=>LOW_FEAT.includes(f.type)))return{tier:'low',color:'#2c7a4a',label:'Low impact',overlapping};
+  return{tier:'none',color:'#999999',label:'Non-functional region',overlapping};
+}
+
+function variantSec(p){
+  const variants=p.feats.filter(f=>f.type==='Natural variant');
+  const classified=variants.map(v=>({...v,...classifyVariant(v,p.feats)}));
+  const counts={high:0,mod:0,low:0,none:0};
+  classified.forEach(v=>counts[v.tier]++);
+  return `
+  <section class="section">
+    <div class="sec-hd">
+      <div>
+        <div class="sec-num">03 - Variant Impact</div>
+        <h2 class="sec-t">Where do <span>natural variants</span> land?</h2>
+        <p class="sec-sub">Each natural variant from UniProt is classified by what it overlaps. A variant on an active site is functionally dangerous. One in an unstructured region is likely harmless. No existing database shows this distinction visually.</p>
+      </div>
+      <div class="src-tags">${srcTag('uniprot','UniProt / Pathology &amp; Biotech / Natural variants',`https://www.uniprot.org/uniprotkb/${p.id}#pathology_and_biotech`)}</div>
+    </div>
+    <div class="card card-p">
+      <div class="var-impact-grid">
+        <div class="var-impact-card high">
+          <div class="var-impact-label">High impact</div>
+          <div class="var-impact-n">${counts.high}</div>
+          <div class="var-impact-desc">Overlaps active site, binding site, or catalytic residue</div>
+        </div>
+        <div class="var-impact-card mod">
+          <div class="var-impact-label">Moderate impact</div>
+          <div class="var-impact-n">${counts.mod}</div>
+          <div class="var-impact-desc">Overlaps domain, transmembrane region, or structural bond</div>
+        </div>
+        <div class="var-impact-card low">
+          <div class="var-impact-label">Low impact</div>
+          <div class="var-impact-n">${counts.low}</div>
+          <div class="var-impact-desc">Overlaps structural element like helix, strand, or coil</div>
+        </div>
+        <div class="var-impact-card none">
+          <div class="var-impact-label">Benign region</div>
+          <div class="var-impact-n">${counts.none}</div>
+          <div class="var-impact-desc">No overlap with any annotated functional feature</div>
+        </div>
+      </div>
+      <div class="var-track-wrap"><svg class="var-track-svg" id="var-svg"></svg></div>
+      <div class="var-legend">
+        <div class="var-leg"><span class="var-leg-dot" style="background:#b53a10"></span>High impact</div>
+        <div class="var-leg"><span class="var-leg-dot" style="background:#c47c00"></span>Moderate impact</div>
+        <div class="var-leg"><span class="var-leg-dot" style="background:#2c7a4a"></span>Low impact</div>
+        <div class="var-leg"><span class="var-leg-dot" style="background:#999"></span>Benign region</div>
+      </div>
+      <div class="var-click-hint">Click any variant to ask the AI about its potential biological impact.</div>
+    </div>
+  </section>`;}
+
+function drawVariants(p){
+  const svg=document.getElementById('var-svg');if(!svg)return;
+  const ns='http://www.w3.org/2000/svg';
+  const W=920,PL=30,PR=30,BW=W-PL-PR;
+  const variants=p.feats.filter(f=>f.type==='Natural variant');
+  const classified=variants.map(v=>({...v,...classifyVariant(v,p.feats)}));
+  const H=110;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('height',H);
+  svg.innerHTML='';
+
+  // Background track
+  svg.appendChild(svgEl(ns,'rect',{x:PL,y:44,width:BW,height:8,fill:'#e8e0d0',rx:4}));
+
+  // Axis ticks
+  for(let i=0;i<=6;i++){
+    const x=PL+(BW/6)*i;const pos=Math.round((p.len/6)*i);
+    svg.appendChild(svgEl(ns,'line',{x1:x,y1:52,x2:x,y2:58,stroke:'#bbb','stroke-width':1}));
+    const t=svgEl(ns,'text',{x:x,y:70,'text-anchor':'middle','font-size':10,fill:'#777','font-family':'JetBrains Mono','font-weight':500});
+    t.textContent=pos;svg.appendChild(t);
+  }
+
+  // Group variants by position bucket to avoid overlap
+  const buckets={};
+  classified.forEach(v=>{
+    const x=Math.round((v.s/p.len)*BW);
+    const bucket=Math.round(x/8)*8;
+    if(!buckets[bucket])buckets[bucket]=[];
+    buckets[bucket].push(v);
+  });
+
+  // Draw variants as diamonds
+  Object.entries(buckets).forEach(([bx,bvars])=>{
+    const x=PL+parseInt(bx);
+    bvars.forEach((v,bi)=>{
+      const yOffset=bi*14;
+      const cy=42-yOffset;
+      const r=bi===0?7:5;
+      // Diamond shape
+      const dx=x,dy=cy;
+      const d=`M ${dx} ${dy-r} L ${dx+r} ${dy} L ${dx} ${dy+r} L ${dx-r} ${dy} Z`;
+      const shape=svgEl(ns,'path',{d,fill:v.color,stroke:'white','stroke-width':1.5,style:'cursor:pointer;transition:opacity 0.15s',opacity:0.92});
+      shape.addEventListener('mouseenter',e=>{
+        shape.setAttribute('opacity','1');
+        const overlapNames=v.overlapping.length>0?v.overlapping.map(f=>f.type).filter((t,i,a)=>a.indexOf(t)===i).slice(0,3).join(', '):'no functional feature';
+        showTT(e,v.label,v.desc&&v.desc!==v.type?v.desc:`Position ${v.s}`,`Overlaps: ${overlapNames}`);
+      });
+      shape.addEventListener('mousemove',moveTT);
+      shape.addEventListener('mouseleave',()=>{shape.setAttribute('opacity','0.92');hideTT();});
+      shape.addEventListener('click',()=>{
+        const overlapNames=v.overlapping.length>0?v.overlapping.map(f=>f.type).filter((t,i,a)=>a.indexOf(t)===i).join(', '):'no annotated functional feature';
+        const q=`This protein has a natural variant at position ${v.s}${v.desc&&v.desc!==v.type?' ('+v.desc+')':''}. It overlaps ${overlapNames}. What is the likely biological impact of a mutation at this position? Could it cause disease?`;
+        addMsg(q);document.querySelector('.chat-card').scrollIntoView({behavior:'smooth',block:'start'});
+      });
+      svg.appendChild(shape);
+
+      // Stack indicator for multiple variants in same bucket
+      if(bi===0&&bvars.length>1){
+        const badge=svgEl(ns,'text',{x:dx+8,y:dy-8,'font-size':8,fill:v.color,'font-family':'Inter','font-weight':800});
+        badge.textContent='+'+bvars.length;svg.appendChild(badge);
+      }
+    });
+  });
+}
+
 function renderAll(){
   const p=S.prot;
   const aTM=p.feats.filter(f=>f.type==='Transmembrane');
@@ -536,6 +697,9 @@ function renderAll(){
   const hasTM=S.tmPred.length>0||aTM.length>0;
   const hasGO=p.go.MF.length+p.go.BP.length+p.go.CC.length>0;
   const hasSTR=!!(S.str&&S.str.nodes.length>1);
+
+  const variants=p.feats.filter(f=>f.type==='Natural variant');
+  const hasVars=variants.length>0;
 
   document.getElementById('results').innerHTML=`
     <section class="prot-head">
@@ -551,16 +715,18 @@ function renderAll(){
         <div class="ai-loading">${S.gemKey?'Writing summary<span class="dots"></span>':'Add your free Groq API key above to enable AI features.'}</div>
       </div>
       <div class="stats-row">
-        <div class="stat"><div class="stat-k">Length</div><div class="stat-v">${p.len.toLocaleString()}<span class="stat-u">aa</span></div></div>
-        <div class="stat"><div class="stat-k">Features</div><div class="stat-v">${p.feats.length}</div></div>
-        <div class="stat"><div class="stat-k">Coverage</div><div class="stat-v">${p.cov}<span class="stat-u">%</span></div></div>
-        ${hasSTR?`<div class="stat"><div class="stat-k">Partners</div><div class="stat-v">${S.str.nodes.length-1}</div></div>`:''}
-        ${hasGO?`<div class="stat"><div class="stat-k">GO Terms</div><div class="stat-v">${p.go.MF.length+p.go.BP.length+p.go.CC.length}</div></div>`:''}
+        <div class="stat"><div class="stat-k">Length</div><div class="stat-v">${p.len.toLocaleString()}<span class="stat-u">aa</span></div><div class="stat-src">UniProt / Sequences / Length</div></div>
+        <div class="stat"><div class="stat-k">Features</div><div class="stat-v">${p.feats.length}</div><div class="stat-src">UniProt / PTM & Processing / Family & Domains</div></div>
+        <div class="stat"><div class="stat-k">Coverage</div><div class="stat-v">${p.cov}<span class="stat-u">%</span></div><div class="stat-src">Computed from UniProt feature positions</div></div>
+        ${hasVars?`<div class="stat"><div class="stat-k">Variants</div><div class="stat-v">${variants.length}</div><div class="stat-src">UniProt / Pathology & Biotech / Natural variants</div></div>`:''}
+        ${hasSTR?`<div class="stat"><div class="stat-k">Partners</div><div class="stat-v">${S.str.nodes.length-1}</div><div class="stat-src">STRING / Interaction network / Connected nodes</div></div>`:''}
+        ${hasGO?`<div class="stat"><div class="stat-k">GO Terms</div><div class="stat-v">${p.go.MF.length+p.go.BP.length+p.go.CC.length}</div><div class="stat-src">UniProt / Function / GO annotations</div></div>`:''}
       </div>
     </section>
 
     ${chatSec(p)}
     ${stripSec(p)}
+    ${hasVars?variantSec(p):''}
     ${radarSec(p)}
     ${hasTM?tmSec(opct,cc,aTM):''}
     ${hasSTR?netSec():''}
@@ -570,6 +736,7 @@ function renderAll(){
   `;
   document.getElementById('results').classList.add('on');
   setupFilters();drawStrip();
+  if(hasVars)drawVariants(p);
   drawRadar();
   if(hasTM){drawHydro();drawOverlay();}
   if(hasSTR)drawNet();
@@ -586,13 +753,19 @@ function renderAICard(){
   }
 }
 
+const EXT_ICON=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+function srcTag(cls,label,url){return `<a class="src-tag ${cls}" href="${url}" target="_blank">${EXT_ICON}${label}</a>`;}
+
 function chatSec(p){return `
   <section class="section">
-    <div class="sec-hd"><div>
-      <div class="sec-num">01 - AI Assistant</div>
-      <h2 class="sec-t">Ask anything about <span>${esc(p.name.split(' ').slice(0,3).join(' '))}</span></h2>
-      <p class="sec-sub">Ask questions in plain English, find similar proteins, or click any feature in the strip below to have it explained.</p>
-    </div></div>
+    <div class="sec-hd">
+      <div>
+        <div class="sec-num">01 - AI Assistant</div>
+        <h2 class="sec-t">Ask anything about <span>${esc(p.name.split(' ').slice(0,3).join(' '))}</span></h2>
+        <p class="sec-sub">Ask questions in plain English, find similar proteins, or click any feature in the strip below to have it explained.</p>
+      </div>
+      <div class="src-tags">${srcTag('groq','Groq / Llama 3 (free)','https://console.groq.com')}</div>
+    </div>
     <div class="chat-card">
       <div class="chat-hd">
         <div class="chat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z"/></svg></div>
@@ -620,11 +793,17 @@ function stripSec(p){
   const cts={};p.feats.forEach(f=>{cts[f.type]=(cts[f.type]||0)+1;});
   return `
   <section class="section">
-    <div class="sec-hd"><div>
-      <div class="sec-num">02 - Structure</div>
-      <h2 class="sec-t"><span>Features</span> along the sequence</h2>
-      <p class="sec-sub">Every annotated region rendered spatially. Click any feature block to ask the AI what it means biologically.</p>
-    </div></div>
+    <div class="sec-hd">
+      <div>
+        <div class="sec-num">02 - Structure</div>
+        <h2 class="sec-t"><span>Features</span> along the sequence</h2>
+        <p class="sec-sub">Every annotated region rendered spatially. Click any feature block to ask the AI what it means biologically.</p>
+      </div>
+      <div class="src-tags">
+        ${srcTag('uniprot','UniProt / PTM &amp; Processing',`https://www.uniprot.org/uniprotkb/${p.id}#ptm_processing`)}
+        ${srcTag('uniprot','UniProt / Family &amp; Domains',`https://www.uniprot.org/uniprotkb/${p.id}#family_domains`)}
+      </div>
+    </div>
     <div class="card card-p">
       <div style="font-size:0.8rem;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">Feature landscape - ${p.len} residues</div>
       <div class="strip-wrap"><svg class="strip-svg" id="strip-svg"></svg></div>
@@ -637,11 +816,18 @@ function stripSec(p){
 function radarSec(p){
   return `
   <section class="section">
-    <div class="sec-hd"><div>
-      <div class="sec-num">03 - Protein Profile</div>
-      <h2 class="sec-t">Protein <span>fingerprint</span></h2>
-      <p class="sec-sub">A radar chart showing six key dimensions of this protein - computed from the fetched data. Each axis shows how this protein scores relative to typical values.</p>
-    </div></div>
+    <div class="sec-hd">
+      <div>
+        <div class="sec-num">04 - Protein Profile</div>
+        <h2 class="sec-t">Protein <span>fingerprint</span></h2>
+        <p class="sec-sub">A radar chart showing six key dimensions of this protein - computed from the fetched data. Each axis shows how this protein scores relative to typical values.</p>
+      </div>
+      <div class="src-tags">
+        ${srcTag('uniprot','UniProt / entry',`https://www.uniprot.org/uniprotkb/${p.id}`)}
+        ${srcTag('string','STRING / network',`https://string-db.org/cgi/network?identifiers=${encodeURIComponent(p.gene||p.id)}&species=${p.taxon||9606}`)}
+        ${srcTag('computed','Computed / Kyte-Doolittle','https://en.wikipedia.org/wiki/Hydrophilicity_plot')}
+      </div>
+    </div>
     <div class="card card-p">
       <div class="radar-wrap">
         <canvas id="radar-canvas" width="280" height="280" class="radar-svg"></canvas>
@@ -650,13 +836,21 @@ function radarSec(p){
     </div>
   </section>`;}
 
-function tmSec(opct,cc,aTM){return `
+function tmSec(opct,cc,aTM){
+  const p=S.prot;
+  return `
   <section class="section">
-    <div class="sec-hd"><div>
-      <div class="sec-num">04 - Sequence Signal</div>
-      <h2 class="sec-t">Does the sequence <span>agree</span> with annotation?</h2>
-      <p class="sec-sub">Kyte-Doolittle hydrophobicity computed from the raw sequence, then compared against UniProt curated transmembrane regions. Adjust window and threshold to explore how the prediction changes.</p>
-    </div></div>
+    <div class="sec-hd">
+      <div>
+        <div class="sec-num">05 - Sequence Signal</div>
+        <h2 class="sec-t">Does the sequence <span>agree</span> with annotation?</h2>
+        <p class="sec-sub">Kyte-Doolittle hydrophobicity computed from the raw sequence, then compared against UniProt curated transmembrane regions. Adjust window and threshold to explore how the prediction changes.</p>
+      </div>
+      <div class="src-tags">
+        ${srcTag('uniprot','UniProt / PTM &amp; Processing / Transmembrane',`https://www.uniprot.org/uniprotkb/${p.id}#ptm_processing`)}
+        ${srcTag('computed','Computed / Kyte-Doolittle sliding window','https://en.wikipedia.org/wiki/Hydrophilicity_plot')}
+      </div>
+    </div>
     <div class="card card-p" style="margin-bottom:16px;">
       <div class="tm-ctrl">
         <div class="sw"><div class="sw-lbl"><span>Window size</span><span class="sv" id="winv">${S.win} residues</span></div><input type="range" min="5" max="31" step="2" value="${S.win}" class="slider" oninput="updTM(this.value,null)"/></div>
@@ -682,13 +876,17 @@ function tmSec(opct,cc,aTM){return `
 function netSec(){
   const o=S.str.nodes.filter(n=>!n.isQ);
   const hub=o.length>0?o.reduce((a,b)=>a.deg>b.deg?a:b,o[0]):null;
+  const p=S.prot;
   return `
   <section class="section">
-    <div class="sec-hd"><div>
-      <div class="sec-num">05 - Context</div>
-      <h2 class="sec-t">Who does it <span>work with?</span></h2>
-      <p class="sec-sub">Interaction partners from STRING. Node size reflects degree within this neighbourhood. Click any partner to ask the AI about that specific relationship.</p>
-    </div></div>
+    <div class="sec-hd">
+      <div>
+        <div class="sec-num">06 - Context</div>
+        <h2 class="sec-t">Who does it <span>work with?</span></h2>
+        <p class="sec-sub">Interaction partners from STRING. Node size reflects degree within this neighbourhood. Click any partner to ask the AI about that specific relationship.</p>
+      </div>
+      <div class="src-tags">${srcTag('string','STRING / Interaction network',`https://string-db.org/cgi/network?identifiers=${encodeURIComponent(p.gene||p.id)}&species=${p.taxon||9606}`)}</div>
+    </div>
     <div class="main-grid">
       <div class="net-viz"><svg class="net-svg" id="net-svg"></svg></div>
       <div class="side-col">
@@ -707,11 +905,14 @@ function netSec(){
 
 function goSec(p){return `
   <section class="section">
-    <div class="sec-hd"><div>
-      <div class="sec-num">06 - Function</div>
-      <h2 class="sec-t">Gene Ontology <span>assignments</span></h2>
-      <p class="sec-sub">Three aspects of GO - what the protein does molecularly, which biological processes it participates in, and where in the cell it operates.</p>
-    </div></div>
+    <div class="sec-hd">
+      <div>
+        <div class="sec-num">07 - Function</div>
+        <h2 class="sec-t">Gene Ontology <span>assignments</span></h2>
+        <p class="sec-sub">Three aspects of GO - what the protein does molecularly, which biological processes it participates in, and where in the cell it operates.</p>
+      </div>
+      <div class="src-tags">${srcTag('uniprot','UniProt / Function / GO annotations',`https://www.uniprot.org/uniprotkb/${p.id}#function`)}</div>
+    </div>
     <div class="go-grid">
       <div class="go-col"><div class="go-col-hd"><span class="go-chip mf">MF</span><span class="go-col-t">Molecular function</span></div>${p.go.MF.length===0?'<div style="color:var(--ink3);font-size:0.85rem;font-weight:500;">No terms assigned.</div>':p.go.MF.slice(0,8).map(t=>`<div class="goterm"><div class="goterm-n">${esc(t.name)}</div><div class="goterm-id">${t.id}</div></div>`).join('')}</div>
       <div class="go-col"><div class="go-col-hd"><span class="go-chip bp">BP</span><span class="go-col-t">Biological process</span></div>${p.go.BP.length===0?'<div style="color:var(--ink3);font-size:0.85rem;font-weight:500;">No terms assigned.</div>':p.go.BP.slice(0,8).map(t=>`<div class="goterm"><div class="goterm-n">${esc(t.name)}</div><div class="goterm-id">${t.id}</div></div>`).join('')}</div>
@@ -719,13 +920,18 @@ function goSec(p){return `
     </div>
   </section>`;}
 
-function aaSec(){return `
+function aaSec(){
+  const p=S.prot;
+  return `
   <section class="section">
-    <div class="sec-hd"><div>
-      <div class="sec-num">07 - Composition</div>
-      <h2 class="sec-t">Amino acid <span>distribution</span></h2>
-      <p class="sec-sub">Colored by physicochemical class - the same groupings behind BLOSUM substitution matrices.</p>
-    </div></div>
+    <div class="sec-hd">
+      <div>
+        <div class="sec-num">08 - Composition</div>
+        <h2 class="sec-t">Amino acid <span>distribution</span></h2>
+        <p class="sec-sub">Colored by physicochemical class - the same groupings behind BLOSUM substitution matrices.</p>
+      </div>
+      <div class="src-tags">${srcTag('uniprot','UniProt / Sequences',`https://www.uniprot.org/uniprotkb/${p.id}#sequences`)}</div>
+    </div>
     <div class="card card-p">
       <div class="aa-bars" id="aa-bars"></div>
       <div class="aa-legend">
@@ -742,11 +948,19 @@ function resSec(p){
   const fa=`>${p.id}\n${p.seq.match(/.{1,60}/g)?.join('\n')||p.seq}`;
   return `
   <section class="section">
-    <div class="sec-hd"><div>
-      <div class="sec-num">08 - Go Deeper</div>
-      <h2 class="sec-t">Continue <span>investigating</span></h2>
-      <p class="sec-sub">Pivot to the primary databases for detail ProVisual does not show.</p>
-    </div></div>
+    <div class="sec-hd">
+      <div>
+        <div class="sec-num">09 - Go Deeper</div>
+        <h2 class="sec-t">Continue <span>investigating</span></h2>
+        <p class="sec-sub">Pivot to the primary databases for detail ProVisual does not show.</p>
+      </div>
+      <div class="src-tags">
+        ${srcTag('uniprot','UniProt',`https://www.uniprot.org/uniprotkb/${p.id}`)}
+        ${srcTag('ncbi','NCBI BLAST','https://blast.ncbi.nlm.nih.gov')}
+        ${srcTag('string','STRING',`https://string-db.org`)}
+        ${p.gene?srcTag('kegg','KEGG',`https://www.genome.jp/kegg/`):''}
+      </div>
+    </div>
     <div class="res-grid">
       <a class="res-a" href="https://www.uniprot.org/uniprotkb/${p.id}" target="_blank"><div class="res-db">UniProt</div><div class="res-title">Full entry</div><div class="res-desc">All annotations, publications, and cross-references for ${p.id}.</div><div class="res-arr">Go</div></a>
       <a class="res-a" href="https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastp&PAGE_TYPE=BlastSearch&QUERY=${encodeURIComponent(fa)}" target="_blank"><div class="res-db">NCBI BLAST</div><div class="res-title">Find homologs</div><div class="res-desc">Submit this sequence to BLASTp for a homology search.</div><div class="res-arr">Go</div></a>
@@ -1086,10 +1300,27 @@ function drawAA(){
 
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
 const ttEl=document.getElementById('tt');
-function showTT(e,type,name,meta){document.getElementById('tt-type').textContent=type;document.getElementById('tt-name').textContent=name;document.getElementById('tt-meta').textContent=meta||'';ttEl.classList.add('on');moveTT(e);}
-function moveTT(e){ttEl.style.left=Math.min(e.clientX+14,window.innerWidth-285)+'px';ttEl.style.top=Math.max(8,e.clientY-10)+'px';}
+function showTT(e,type,name,meta){
+  document.getElementById('tt-type').textContent=type;
+  document.getElementById('tt-name').textContent=name;
+  document.getElementById('tt-meta').textContent=meta||'';
+  ttEl.classList.add('on');
+  moveTT(e);
+}
+function moveTT(e){
+  const hdrBottom=document.querySelector('.api-bar')?.getBoundingClientRect().bottom||130;
+  const ttH=ttEl.offsetHeight||70;
+  const x=Math.min(e.clientX+16,window.innerWidth-290);
+  // Always show below cursor if near top, and never go above header
+  const ideal=e.clientY-ttH-10;
+  const y=ideal<hdrBottom+8 ? e.clientY+16 : ideal;
+  ttEl.style.left=x+'px';
+  ttEl.style.top=Math.max(hdrBottom+8,y)+'px';
+}
 function hideTT(){ttEl.classList.remove('on');}
-document.addEventListener('mousemove',e=>{if(ttEl.classList.contains('on')){ttEl.style.left=Math.min(e.clientX+14,window.innerWidth-285)+'px';ttEl.style.top=Math.max(8,e.clientY-10)+'px';}});
+// Hide tooltip on scroll so it never gets orphaned at top
+document.addEventListener('scroll',hideTT,true);
+document.addEventListener('mousemove',e=>{if(ttEl.classList.contains('on')){moveTT(e);}});
 window.addEventListener('resize',()=>{if(S.prot){if(S.str)drawNet();drawRadar();if(S.hydro){drawHydro();drawOverlay();}}});
 </script>
 </body>
