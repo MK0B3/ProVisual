@@ -88,10 +88,7 @@ Database calls are issued concurrently rather than in sequence, and a failed STR
 - The STRING network needs a gene name; entries without one skip that section.
 - Rate limits are the public ones for each API. Heavy use may throttle.
 
-## Authors
 
-Built by **Ali Wazni** and **Mohammad Kobeissi**
-CMPS 297AF — American University of Beirut, Spring 2026
 
 ## License
 
