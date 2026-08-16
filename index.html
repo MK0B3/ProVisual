@@ -354,7 +354,7 @@ footer .fi{display:flex;justify-content:space-between;align-items:center;flex-wr
     <div class="task" data-t="uniprot"><div class="task-dot"></div><div class="task-name">UniProt - curated annotations and GO terms</div><div class="task-st">Queued</div></div>
     <div class="task" data-t="predict"><div class="task-dot"></div><div class="task-name">Kyte-Doolittle - hydrophobicity signal computation</div><div class="task-st">Queued</div></div>
     <div class="task" data-t="string"><div class="task-dot"></div><div class="task-name">STRING - protein interaction network</div><div class="task-st">Queued</div></div>
-    <div class="task" data-t="ai"><div class="task-dot"></div><div class="task-name">Claude AI - plain-language summary</div><div class="task-st">Queued</div></div>
+    <div class="task" data-t="ai"><div class="task-dot"></div><div class="task-name">Groq Llama 3.3 - plain-language summary</div><div class="task-st">Queued</div></div>
   </div>
 </div>
 
@@ -478,13 +478,17 @@ function computeHydro(seq,w){
   return p;
 }
 
+// The sliding window erodes each end of a hydrophobic stretch by up to half its
+// width, so a genuine 20-25 residue helix clears the threshold for noticeably
+// fewer residues than it actually spans. EGFR's 646-668 helix survives as 13.
+const MIN_TM=12;
 function predictTM(profile,thr){
   const segs=[];let in_=false,st=0;
   for(let i=0;i<profile.length;i++){
     if(profile[i]>=thr&&!in_){in_=true;st=i;}
-    else if(profile[i]<thr&&in_){if(i-st>=15)segs.push({s:st+1,e:i});in_=false;}
+    else if(profile[i]<thr&&in_){if(i-st>=MIN_TM)segs.push({s:st+1,e:i});in_=false;}
   }
-  if(in_&&profile.length-st>=15)segs.push({s:st+1,e:profile.length});
+  if(in_&&profile.length-st>=MIN_TM)segs.push({s:st+1,e:profile.length});
   return segs;
 }
 
@@ -764,13 +768,13 @@ function chatSec(p){return `
         <h2 class="sec-t">Ask anything about <span>${esc(p.name.split(' ').slice(0,3).join(' '))}</span></h2>
         <p class="sec-sub">Ask questions in plain English, find similar proteins, or click any feature in the strip below to have it explained.</p>
       </div>
-      <div class="src-tags">${srcTag('groq','Groq / Llama 3 (free)','https://console.groq.com')}</div>
+      <div class="src-tags">${srcTag('groq','Groq / Llama 3.3 70B (free)','https://console.groq.com')}</div>
     </div>
     <div class="chat-card">
       <div class="chat-hd">
         <div class="chat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z"/></svg></div>
         <div><div class="chat-title">Ask about <span>${esc(p.name.split(' ').slice(0,2).join(' '))}</span></div>
-        <div class="chat-sub">Powered by Groq + Llama 3 (free) - uses everything fetched from UniProt, STRING, and Gene Ontology</div></div>
+        <div class="chat-sub">Powered by Groq + Llama 3.3 70B (free) - uses everything fetched from UniProt, STRING, and Gene Ontology</div></div>
       </div>
       <div class="suggestions">
         <div class="sug" onclick="suggest('What does this protein actually do in the cell?')">What does it do?</div>

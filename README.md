@@ -30,6 +30,8 @@ ProVisual does that join for you, then adds the one thing none of the sources pr
 
 **Sequence vs. annotation.** Kyte-Doolittle hydrophobicity is computed in-browser from the raw sequence, then compared against UniProt's curated transmembrane regions. Window size and threshold are live sliders, so you can watch the prediction move and see where computation and curation disagree.
 
+![Hydrophobicity and transmembrane prediction](docs/screenshots/04-hydrophobicity.jpg)
+
 **Plus:** a radar-chart protein fingerprint, the STRING interaction network, GO assignments split by MF/BP/CC, amino acid composition, and deep links back into every source.
 
 ## Run it
@@ -81,7 +83,7 @@ Database calls are issued concurrently rather than in sequence, and a failed STR
 
 ## Limitations
 
-- **TM prediction is a teaching implementation.** Plain Kyte-Doolittle with a fixed threshold, not a hidden Markov model. Because the sliding window pulls down the edges of each hydrophobic stretch, the default settings (window 19, threshold 1.60, minimum length 15) can miss genuine helices — EGFR's annotated 646–668 region clears the threshold for only 13 smoothed residues and is discarded. Widen the threshold slider to recover it, and use DeepTMHMM or Phobius for anything real.
+- **TM prediction is a teaching implementation.** Plain Kyte-Doolittle with a fixed threshold, not a hidden Markov model, and it under-detects on multi-pass proteins — the mu-opioid receptor recovers 3 of its 7 annotated helices at default settings. Use DeepTMHMM or Phobius for anything real.
 - **Variant impact classification is positional**, based on overlap with annotated features. It is not a pathogenicity predictor and should not be read as one.
 - The STRING network needs a gene name; entries without one skip that section.
 - Rate limits are the public ones for each API. Heavy use may throttle.
